@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><title>Магазин</title></head>
+<body>
+<h2>Товары</h2>
+<form method="POST" action="/add">
+    <select name="product_index">
+        {% for p in products %}
+            <option value="{{ loop.index0 }}">{{ p.name }} - {{ p.base_price }}₽ {% if p.requires_weight %}(нужен вес){% endif %}</option>
+        {% endfor %}
+    </select>
+    <input name="weight" placeholder="Вес (если нужно)">
+    <button type="submit">Добавить в корзину</button>
+</form>
+
+<h2>Корзина</h2>
+<ul>
+    {% for item in cart %}
+        <li>{{ item.name }} - {{ item.price }}₽
+            <a href="/remove/{{ loop.index0 }}">Удалить</a>
+        </li>
+    {% endfor %}
+</ul>
+
+<h2>Оплата</h2>
+<form method="POST" action="/buy">
+    <input name="cash" placeholder="Наличные">
+    <input name="card" placeholder="Карта">
+    <input name="bonus" placeholder="Бонусы">
+    <button type="submit">Купить</button>
+</form>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>{% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}</ul>
+  {% endif %}
+{% endwith %}
+</body>
+</html>
