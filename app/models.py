@@ -22,6 +22,7 @@ class Customer:
         self.card = 100
         self.bonus = 50
         self.cart = []
+        self.purchase_history = []
 
     def total_cart(self):
         return sum(p.price for p in self.cart if p.is_ready())
@@ -34,5 +35,14 @@ class Customer:
         self.cash -= cash
         self.card -= card
         self.bonus -= bonus
+
+        # сохраняем историю
+        items = [(p.name, p.price) for p in self.cart]
+        self.purchase_history.append({
+            "items": items,
+            "total": amount,
+            "method": {"cash": cash, "card": card, "bonus": bonus}
+        })
+
         self.cart = []
         return True, "Оплата прошла успешно"

@@ -2,6 +2,12 @@
 <html>
 <head><title>Магазин</title></head>
 <body>
+<h2>Баланс</h2>
+<ul>
+    <li>Наличные: {{ balance.cash }}₽</li>
+    <li>Карта: {{ balance.card }}₽</li>
+    <li>Бонусы: {{ balance.bonus }}₽</li>
+</ul>
 <h2>Товары</h2>
 <form method="POST" action="/add">
     <select name="product_index">
@@ -29,6 +35,25 @@
     <input name="bonus" placeholder="Бонусы">
     <button type="submit">Купить</button>
 </form>
+
+<h2>История покупок</h2>
+<ul>
+    {% for h in history %}
+        <li>
+            {{ h['items']|length }} товар(ов):
+            <ul>
+                {% for name, price in h['items'] %}
+                    <li>{{ name }} - {{ price }}₽</li>
+                {% endfor %}
+            </ul>
+            Сумма: {{ h['total'] }}₽
+            (наличные: {{ h['method']['cash'] }},
+             карта: {{ h['method']['card'] }},
+             бонусы: {{ h['method']['bonus'] }})
+        </li>
+    {% endfor %}
+</ul>
+
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}

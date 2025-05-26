@@ -7,7 +7,15 @@ controller = StoreController()
 
 @app.route('/')
 def index():
-    return render_template("index.html", products=controller.get_products(), cart=controller.get_cart())
+    return render_template("index.html",
+        products=controller.get_products(),
+        cart=controller.get_cart(),
+        history=controller.customer.purchase_history,
+        balance={
+            "cash": controller.customer.cash,
+            "card": controller.customer.card,
+            "bonus": controller.customer.bonus,
+        })
 
 @app.route('/add', methods=["POST"])
 def add():
