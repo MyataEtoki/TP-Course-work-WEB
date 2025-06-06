@@ -25,7 +25,7 @@ class Customer:
         self.purchase_history = []
 
     def total_cart(self):
-        return sum(p.price for p in self.cart if p.is_ready())
+        return sum(item.price for item in self.cart)
 
     def pay(self, amount, cash, card, bonus):
         if cash + card + bonus != amount:
@@ -46,3 +46,9 @@ class Customer:
 
         self.cart = []
         return True, "Оплата прошла успешно"
+
+    def go_to_work(self):
+        self.cash += 500
+        self.card += 300
+        self.bonus += 200
+        return True, "Вы заработали: +500₽ нал, +300₽ карта, +200₽ бонусы. И диарею."

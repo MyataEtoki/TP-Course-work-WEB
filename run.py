@@ -1,21 +1,26 @@
 from flask import render_template, request, redirect, url_for, session, flash
 from app import create_app
-from app.controllers import StoreController
+from app.controllers import Controller
+from app.commands import PayCommand
 
 app = create_app()
-controller = StoreController()
+controller = Controller()
 
 @app.route('/')
 def index():
-    return render_template("index.html",
+    return render_template(
+        "index.html",
         products=controller.get_products(),
         cart=controller.get_cart(),
         history=controller.customer.purchase_history,
         balance={
             "cash": controller.customer.cash,
             "card": controller.customer.card,
-            "bonus": controller.customer.bonus,
-        })
+            "bonus": controller.customer.bonus
+        },
+        total=controller.customer.total_cart()  # ← добавили итоговую сумму
+    )
+
 
 @app.route('/add', methods=["POST"])
 def add():
@@ -30,17 +35,22 @@ def remove(index):
     controller.remove_from_cart(index)
     return redirect(url_for('index'))
 
-@app.route('/buy', methods=["POST"])
+@app.route('/buy', methods=['POST'])
 def buy():
-    try:
-        cash = float(request.form['cash'])
-        card = float(request.form['card'])
-        bonus = float(request.form['bonus'])
-    except ValueError:
-        flash("Введите корректные значения")
-        return redirect(url_for('index'))
+    amounts = [
+        request.form.get('cash', '0'),
+        request.form.get('card', '0'),
+        request.form.get('bonus', '0')
+    ]
+    cmd = PayCommand(controller, amounts)
+    success, msg = cmd.execute()
+    flash(msg)
+    return redirect(url_for('index'))
 
-    success, msg = controller.attempt_purchase(cash, card, bonus)
+
+@app.route('/work')
+def work():
+    msg = controller.customer.go_to_work()
     flash(msg)
     return redirect(url_for('index'))
 

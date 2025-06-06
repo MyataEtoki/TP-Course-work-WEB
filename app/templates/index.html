@@ -1,66 +1,115 @@
 <!DOCTYPE html>
-<html>
-<head><title>Магазин</title></head>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Магазин</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 <body>
-<h2>Баланс</h2>
-<ul>
-    <li>Наличные: {{ balance.cash }}₽</li>
-    <li>Карта: {{ balance.card }}₽</li>
-    <li>Бонусы: {{ balance.bonus }}₽</li>
-</ul>
-<h2>Товары</h2>
-<form method="POST" action="/add">
-    <select name="product_index">
-        {% for p in products %}
-            <option value="{{ loop.index0 }}">{{ p.name }} - {{ p.base_price }}₽ {% if p.requires_weight %}(нужен вес){% endif %}</option>
-        {% endfor %}
-    </select>
-    <input name="weight" placeholder="Вес (если нужно)">
-    <button type="submit">Добавить в корзину</button>
-</form>
 
-<h2>Корзина</h2>
-<ul>
-    {% for item in cart %}
-        <li>{{ item.name }} - {{ item.price }}₽
-            <a href="/remove/{{ loop.index0 }}">Удалить</a>
-        </li>
-    {% endfor %}
-</ul>
-
-<h2>Оплата</h2>
-<form method="POST" action="/buy">
-    <input name="cash" placeholder="Наличные">
-    <input name="card" placeholder="Карта">
-    <input name="bonus" placeholder="Бонусы">
-    <button type="submit">Купить</button>
-</form>
-
-<h2>История покупок</h2>
-<ul>
-    {% for h in history %}
-        <li>
-            {{ h['items']|length }} товар(ов):
-            <ul>
-                {% for name, price in h['items'] %}
-                    <li>{{ name }} - {{ price }}₽</li>
-                {% endfor %}
-            </ul>
-            Сумма: {{ h['total'] }}₽
-            (наличные: {{ h['method']['cash'] }},
-             карта: {{ h['method']['card'] }},
-             бонусы: {{ h['method']['bonus'] }})
-        </li>
-    {% endfor %}
-</ul>
-
+<header>
+    Онлайн-магазин покупок
+</header>
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <ul>{% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}</ul>
+    {% for message in messages %}
+      <div class="message">{{ message }}</div>
+    {% endfor %}
   {% endif %}
 {% endwith %}
+
+<main>
+
+    <!-- Товары -->
+    <div class="block">
+        <h2>Каталог товаров</h2>
+        <form action="/add" method="post">
+            <table>
+    <tr><th>#</th><th>Название</th><th>Цена</th><th>Вес</th><th></th></tr>
+    {% for p in products %}
+        <tr>
+            <form action="/add" method="post">
+                <td>{{ loop.index0 }}</td>
+                <td>{{ p.name }}</td>
+                <td>{{ p.price }}₽</td>
+                <td>
+                    {% if p.requires_weight %}
+                        <input type="text" name="weight" placeholder="кг">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="hidden" name="product_index" value="{{ loop.index0 }}">
+                    <input type="submit" value="В корзину">
+                </td>
+            </form>
+        </tr>
+    {% endfor %}
+</table>
+        </form>
+    </div>
+
+    <!-- Корзина -->
+    <div class="block">
+        <h2>Корзина</h2>
+        {% if cart %}
+            <ul>
+                {% for item in cart %}
+                    <li>{{ item.name }} — {{ item.price }}₽</li>
+                {% endfor %}
+            </ul>
+            <p><strong>Итого к оплате:</strong> {{ total }}₽</p>
+        {% else %}
+            <p>Корзина пуста</p>
+        {% endif %}
+    </div>
+
+    <!-- Оплата -->
+    <div class="block">
+        <h2>Оплата</h2>
+        <form action="/buy" method="post">
+            <p><label>Наличные: <input type="number" name="cash" value="0" min="0"></label></p>
+            <p><label>Карта: <input type="number" name="card" value="0" min="0"></label></p>
+            <p><label>Бонусы: <input type="number" name="bonus" value="0" min="0"></label></p>
+            <input type="submit" value="Оплатить">
+        </form>
+
+        <div class="balance">
+            <h3>Ваш баланс:</h3>
+            <ul>
+                <li>Наличные: {{ balance.cash }}₽</li>
+                <li>Карта: {{ balance.card }}₽</li>
+                <li>Бонусы: {{ balance.bonus }}₽</li>
+            </ul>
+            <form action="/work">
+                <button type="submit">Пойти на работу 💼</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- История -->
+    <div class="history">
+    {% for record in history %}
+        <div class="history-item">
+            <strong>Покупка на {{ record.total }}₽</strong>
+            <ul>
+                <li>Наличные: {{ record.method.cash }}</li>
+                <li>Карта: {{ record.method.card }}</li>
+                <li>Бонусы: {{ record.method.bonus }}</li>
+            </ul>
+            <em>Товары:</em>
+            <ul>
+                {% for product in record["items"] %}
+                    <li>{{ product[0] }} — {{ product[1] }}₽</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+</div>
+
+
+</main>
 </body>
 </html>
