@@ -1,5 +1,6 @@
 class Product:
-    def __init__(self, name, price, requires_weight=False):
+    def __init__(self, id, name, price, requires_weight=False):
+        self.id = id
         self.name = name
         self.base_price = price
         self.requires_weight = requires_weight
@@ -52,3 +53,4 @@ class Customer:
         self.card += 300
         self.bonus += 200
         return True, "Вы заработали: +500₽ нал, +300₽ карта, +200₽ бонусы. И диарею."
+

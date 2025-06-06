@@ -1,0 +1,6 @@
+[
+  {"id": 0, "name": "Хлеб", "price": 50, "requires_weight": false},
+  {"id": 1, "name": "Яблоки", "price": 150, "requires_weight": true},
+  {"id": 2, "name": "Молоко", "price": 80, "requires_weight": false},
+  {"id": 3, "name":  "Массаж от кассирши Люды", "price":  300, "requires_weight": false}
+]

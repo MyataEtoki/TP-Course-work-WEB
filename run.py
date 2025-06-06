@@ -25,7 +25,7 @@ def index():
 @app.route('/add', methods=["POST"])
 def add():
     index = int(request.form['product_index'])
-    weight = request.form.get('weight', None)
+    weight = request.form.get(f'weight_{index}', None)
     success, msg = controller.add_to_cart(index, weight)
     flash(msg)
     return redirect(url_for('index'))
@@ -42,7 +42,7 @@ def buy():
         request.form.get('card', '0'),
         request.form.get('bonus', '0')
     ]
-    cmd = PayCommand(controller, amounts)
+    cmd = PayCommand(controller, amounts) # паттерн Команда
     success, msg = cmd.execute()
     flash(msg)
     return redirect(url_for('index'))
@@ -50,7 +50,7 @@ def buy():
 
 @app.route('/work')
 def work():
-    msg = controller.customer.go_to_work()
+    success, msg = controller.customer.go_to_work()
     flash(msg)
     return redirect(url_for('index'))
 

@@ -25,30 +25,28 @@
     <div class="block">
         <h2>Каталог товаров</h2>
         <form action="/add" method="post">
-            <table>
+<table>
     <tr><th>#</th><th>Название</th><th>Цена</th><th>Вес</th><th></th></tr>
     {% for p in products %}
-        <tr>
-            <form action="/add" method="post">
-                <td>{{ loop.index0 }}</td>
-                <td>{{ p.name }}</td>
-                <td>{{ p.price }}₽</td>
-                <td>
-                    {% if p.requires_weight %}
-                        <input type="text" name="weight" placeholder="кг">
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-                <td>
-                    <input type="hidden" name="product_index" value="{{ loop.index0 }}">
-                    <input type="submit" value="В корзину">
-                </td>
-            </form>
-        </tr>
+    <tr>
+        <td>{{ loop.index0 }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.price }}₽</td>
+        <td>
+            {% if p.requires_weight %}
+                <input type="text" name="weight_{{ loop.index0 }}" placeholder="кг">
+            {% else %}
+                -
+            {% endif %}
+        </td>
+        <td>
+            <button type="submit" name="product_index" value="{{ loop.index0 }}">В корзину</button>
+        </td>
+    </tr>
     {% endfor %}
 </table>
-        </form>
+</form>
+
     </div>
 
     <!-- Корзина -->

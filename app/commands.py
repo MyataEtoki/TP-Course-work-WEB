@@ -26,7 +26,17 @@ class PayCommand(Command):
         self.amounts = amounts
 
     def execute(self):
-        return self.controller.pay_with_proxies(self.amounts)
+        # Преобразуем входные данные в float (с запасом на ошибку)
+        try:
+            cash = float(self.amounts[0])
+            card = float(self.amounts[1])
+            bonus = float(self.amounts[2])
+        except (ValueError, TypeError, IndexError):
+            return False, "Неверный формат введённых сумм."
+
+        # Вызываем метод контроллера для оплаты с проверками
+        return self.controller.pay_with_proxies([cash, card, bonus])
+
 
 
 class WorkCommand(Command):

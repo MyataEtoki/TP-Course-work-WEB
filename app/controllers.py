@@ -1,14 +1,19 @@
 from .models import Product, Customer
-from .payment_proxy import PaymentProxy
+from .payment_proxy import PaymentProxy # паттерн Прокси
+import json
+
+def load_products_from_json(filepath='products.json'):
+    with open(filepath, encoding='utf-8') as f:
+        data = json.load(f)
+    products = []
+    for p in data:
+        products.append(Product(p['id'], p['name'], p['price'], p.get('requires_weight', False)))
+    return products
+
 
 class Controller:
     def __init__(self):
-        self.products = [
-            Product("Хлеб", 30),
-            Product("Яблоки", 100, True),
-            Product("Шампунь", 200),
-            Product("Массаж от кассирши Люды", 500)
-        ]
+        self.products = load_products_from_json(filepath='products.json')
         self.customer = Customer()
         self.proxies = [
             PaymentProxy(lambda: self.customer.cash, lambda v: setattr(self.customer, 'cash', v), "наличных"),
@@ -28,8 +33,8 @@ class Controller:
             if product.requires_weight:
                 if not weight:
                     return False, "Этот товар нужно взвесить"
-                product = Product(product.name, product.base_price, True)
-                product.weight = float(weight)
+                product = Product(product.id, product.name, product.base_price, True)
+                product.set_weight(weight)
             self.customer.cart.append(product)
             return True, f"{product.name} добавлен(а) в корзину"
         except Exception as e:
