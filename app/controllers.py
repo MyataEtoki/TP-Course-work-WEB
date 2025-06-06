@@ -103,6 +103,8 @@ class Controller:
             if success:
                 paid += to_pay
                 remaining -= to_pay
+            else:
+                return False, "Ты шо обманываешь. Нет у тебя денег. Плоти штраф."
 
         # Сохраняем историю покупок и очищаем корзину
         items = [(p.name, p.price) for p in self.customer.cart]
