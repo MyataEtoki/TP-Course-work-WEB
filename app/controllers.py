@@ -1,8 +1,14 @@
 from .models import Product, Customer
-from .payment_proxy import PaymentProxy # паттерн Прокси
+from .payment_proxy import PaymentProxy  # Используем паттерн Прокси для оплаты
 import json
 
 def load_products_from_json(filepath='products.json'):
+    """
+    Загружает список товаров из JSON-файла.
+
+    :param filepath: путь к JSON-файлу с товарами
+    :return: список объектов Product
+    """
     with open(filepath, encoding='utf-8') as f:
         data = json.load(f)
     products = []
@@ -12,7 +18,19 @@ def load_products_from_json(filepath='products.json'):
 
 
 class Controller:
+    """
+    Контроллер бизнес-логики приложения.
+
+    Отвечает за работу с товарами, корзиной и оплатой через прокси-объекты.
+    """
+
     def __init__(self):
+        """
+        Инициализация контроллера:
+        - загружает товары из JSON,
+        - создает объект покупателя,
+        - создает прокси для разных способов оплаты.
+        """
         self.products = load_products_from_json(filepath='products.json')
         self.customer = Customer()
         self.proxies = [
@@ -22,12 +40,31 @@ class Controller:
         ]
 
     def get_products(self):
+        """
+        Получить список всех доступных товаров.
+
+        :return: список объектов Product
+        """
         return self.products
 
     def get_cart(self):
+        """
+        Получить текущие товары в корзине покупателя.
+
+        :return: список объектов Product
+        """
         return self.customer.cart
 
     def add_to_cart(self, index, weight=None):
+        """
+        Добавить товар в корзину.
+
+        Если товар требует веса, обязательно нужно указать параметр weight.
+
+        :param index: индекс товара в списке товаров
+        :param weight: вес товара (если требуется)
+        :return: кортеж (успех: bool, сообщение: str)
+        """
         try:
             product = self.products[int(index)]
             if product.requires_weight:
@@ -41,8 +78,13 @@ class Controller:
             return False, f"Ошибка: {str(e)}"
 
     def pay_with_proxies(self, amounts):
+        """
+        Оплатить товары из корзины с использованием нескольких способов оплаты.
+
+        :param amounts: список сумм для списания [наличные, карта, бонусы]
+        :return: кортеж (успех: bool, сообщение: str)
+        """
         total = self.customer.total_cart()
-        # Проверим сначала сумму, которую хочет оплатить пользователь
         total_payment = sum(float(a or 0) for a in amounts)
 
         if total_payment < total:
@@ -50,13 +92,11 @@ class Controller:
 
         paid = 0
         messages = []
-        change = total_payment - total  # сдача
-
-        # Чтобы списывать ровно сумму total, а не больше, распределим оплату по проксям
+        change = total_payment - total
         remaining = total
+
         for proxy, amount in zip(self.proxies, amounts):
             amount = float(amount or 0)
-            # Списываем либо всю сумму amount, либо только то, что осталось оплатить
             to_pay = min(amount, remaining)
             success, msg = proxy.pay(to_pay)
             messages.append(msg)
@@ -64,7 +104,7 @@ class Controller:
                 paid += to_pay
                 remaining -= to_pay
 
-        # Оплата завершена, оформим историю и очистим корзину
+        # Сохраняем историю покупок и очищаем корзину
         items = [(p.name, p.price) for p in self.customer.cart]
         self.customer.purchase_history.append({
             "items": items,
@@ -77,11 +117,17 @@ class Controller:
         })
         self.customer.cart = []
 
-        # Формируем сообщение о сдаче, если она есть
         change_msg = f" Ваша сдача: {change:.2f}₽." if change > 0 else ""
         return True, "Покупка совершена." + change_msg + " " + "; ".join(messages)
 
     def go_to_work(self):
+        """
+        Игровая механика: пополнение баланса покупателя.
+
+        Увеличивает наличные, баланс карты и бонусы.
+
+        :return: кортеж (успех: bool, сообщение: str)
+        """
         self.customer.cash += 500
         self.customer.card += 300
         self.customer.bonus += 200
