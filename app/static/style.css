@@ -20,7 +20,7 @@ header {
 }
 
 main {
-    max-width: 1300px;
+    max-width: 1800px;
     margin: 30px auto;
     padding: 0 20px;
     display: flex;
@@ -33,9 +33,9 @@ main {
     background-color: white;
     border-radius: 10px;
     padding: 20px;
-    flex: 1 1 400px;
+    flex: 1 1 500px;
     min-width: 350px;
-    max-width: 500px;
+    max-width: 430px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 

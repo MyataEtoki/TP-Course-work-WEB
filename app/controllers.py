@@ -38,6 +38,7 @@ class Controller:
             PaymentProxy(lambda: self.customer.card, lambda v: setattr(self.customer, 'card', v), "карте"),
             PaymentProxy(lambda: self.customer.bonus, lambda v: setattr(self.customer, 'bonus', v), "бонусах")
         ]
+        # перехват вызовы к ориг объекту, чтобы сделать доп логику - проверка баланса.
 
     def get_products(self):
         """
